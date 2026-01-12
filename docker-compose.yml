@@ -203,6 +203,20 @@ services:
     networks:
       - local
   
+  auth-service:
+    build:
+      context: ./auth_service
+      dockerfile: Dockerfile
+    container_name: auth-service
+    restart: unless-stopped
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .env:/app/.env
+    expose:
+      - "8000"
+    networks:
+      - local
+  
 volumes:
   broker-fuseki: # Volume for Fuseki data
   connector-database: # Volume for Connector data
