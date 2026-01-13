@@ -204,9 +204,7 @@ services:
       - local
   
   auth-service:
-    build:
-      context: ./auth_service
-      dockerfile: Dockerfile
+    image: ghcr.io/eu-optimi/authentication/stage:latest
     container_name: auth-service
     restart: unless-stopped
     command: python manage.py runserver 0.0.0.0:8000
