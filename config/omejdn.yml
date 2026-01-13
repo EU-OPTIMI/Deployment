@@ -15,8 +15,8 @@ plugins:
       editable_attributes: []
 user_backend_default: yaml
 environment: production
-issuer: https://__HOST__/auth
-front_url: https://__HOST__/auth
+issuer: https://ds2demo1.collab-cloud.eu/auth
+front_url: https://ds2demo1.collab-cloud.eu/auth
 bind_to: 0.0.0.0:4567
 openid: true
 default_audience: idsc:IDS_CONNECTORS_ALL
