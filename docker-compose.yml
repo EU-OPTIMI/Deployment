@@ -8,12 +8,20 @@ services:
       - "80:80"   # Exposes HTTP on port 80
       - "443:443" # Exposes HTTPS on port 443
     environment:
-      - OMEJDN_DOMAIN=ds2demo1.collab-cloud.eu
+      - OMEJDN_DOMAIN=${PUBLIC_HOST}
       - OMEJDN_PATH=/auth
       - UI_PATH=/
+      - PUBLIC_HOST=${PUBLIC_HOST}
+      - NGINX_TLS_CERT=${NGINX_TLS_CERT}
+      - NGINX_TLS_KEY=${NGINX_TLS_KEY}
     volumes:
-      - ./nginx.development.conf:/etc/nginx/nginx.conf # Nginx configuration
+      - ./nginx.template.conf:/etc/nginx/nginx.template.conf # Nginx configuration template
       - /etc/cert:/etc/cert/ # SSL certificates
+    command: >
+      /bin/sh -c "envsubst '$$PUBLIC_HOST $$NGINX_TLS_CERT $$NGINX_TLS_KEY'
+      < /etc/nginx/nginx.template.conf
+      > /etc/nginx/nginx.conf
+      && exec nginx -g 'daemon off;'"
     networks:
       - local
     depends_on:
@@ -38,11 +46,11 @@ services:
       - ELASTICSEARCH_HOSTNAME=broker-elasticsearch
       - SHACL_VALIDATION=true
       - DAPS_VALIDATE_INCOMING=true
-      - COMPONENT_URI=https://ds2demo1.collab-cloud.eu/broker/
-      - COMPONENT_CATALOGURI=https://ds2demo1.collab-cloud.eu/broker/connectors/
-      - JWKS_TRUSTEDHOSTS=ds2demo1.collab-cloud.eu,daps
-      - DAPS_URL=https://ds2demo1.collab-cloud.eu/auth
-      - DAPS_JWKS_URL=https://ds2demo1.collab-cloud.eu/auth/jwks.json
+      - COMPONENT_URI=https://${PUBLIC_HOST}/broker/
+      - COMPONENT_CATALOGURI=https://${PUBLIC_HOST}/broker/connectors/
+      - JWKS_TRUSTEDHOSTS=${PUBLIC_HOST},daps
+      - DAPS_URL=https://${PUBLIC_HOST}/auth
+      - DAPS_JWKS_URL=https://${PUBLIC_HOST}/auth/jwks.json
     expose:
       - "8080" # Internal communication on port 8080
     networks:
@@ -65,8 +73,8 @@ services:
     hostname: daps
     restart: unless-stopped
     environment:
-      - OMEJDN_ISSUER=https://ds2demo1.collab-cloud.eu/auth
-      - OMEJDN_FRONT_URL=https://ds2demo1.collab-cloud.eu/auth
+      - OMEJDN_ISSUER=https://${PUBLIC_HOST}/auth
+      - OMEJDN_FRONT_URL=https://${PUBLIC_HOST}/auth
       - OMEJDN_OPENID=true
       - OMEJDN_ENVIRONMENT=${OMEJDN_ENVIRONMENT}
       - OMEJDN_ACCEPT_AUDIENCE=idsc:IDS_CONNECTORS_ALL
@@ -84,8 +92,8 @@ services:
     image: ghcr.io/fraunhofer-aisec/omejdn-ui:${UI_VERSION}
     restart: unless-stopped
     environment:
-      - OIDC_ISSUER=https://ds2demo1.collab-cloud.eu/auth/
-      - API_URL=https://ds2demo1.collab-cloud.eu/auth/api/v1
+      - OIDC_ISSUER=https://${PUBLIC_HOST}/auth/
+      - API_URL=https://${PUBLIC_HOST}/auth/api/v1
       - CLIENT_ID=adminUI
     networks:
       - local
@@ -114,9 +122,9 @@ services:
     environment:
       - CONFIGURATION_PATH=/config/config.json
       - SERVER_PORT=8081
-      - DAPS_URL=https://ds2demo1.collab-cloud.eu/auth
-      - DAPS_TOKEN_URL=https://ds2demo1.collab-cloud.eu/auth/token
-      - DAPS_KEY_URL=https://ds2demo1.collab-cloud.eu/auth/jwks.json
+      - DAPS_URL=https://${PUBLIC_HOST}/auth
+      - DAPS_TOKEN_URL=https://${PUBLIC_HOST}/auth/token
+      - DAPS_KEY_URL=https://${PUBLIC_HOST}/auth/jwks.json
       - DAPS_INCOMING_DAT_DEFAULT_WELLKNOWN=/jwks.json
       - SERVER_SSLv_KEY-STORE=file:///conf/default-connector-keystore.p12
       - SPRING_DATASOURCE_URL=jdbc:postgresql://connector-database:5432/connectorbdb
@@ -166,7 +174,7 @@ services:
       - DJANGO_DB_NAME=db.sqlite3
       - DJANGO_LANGUAGE_CODE=en-us
       - DJANGO_TIME_ZONE=UTC
-      - BASE_URL=https://ds2demo1.collab-cloud.eu/connector-registration/register-connector
+      - BASE_URL=https://${PUBLIC_HOST}/connector-registration/register-connector
     networks:
       - local
 

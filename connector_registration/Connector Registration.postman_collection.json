@@ -33,17 +33,17 @@
 					]
 				},
 				"url": {
-					"raw": "https://ds2demo1.collab-cloud.eu/connector-registration/register-connector",
+					"raw": "https://${PUBLIC_HOST}/connector-registration/register-connector",
 					"protocol": "https",
 					"host": [
-						"ds2demo1.collab-cloud.eu"
+						"${PUBLIC_HOST}"
 					],
 					"path": [
 						"connector-registration",
 						"register-connector"
 					]
 				},
-				"description": "Generated from cURL: curl --location 'https://ds2demo1.collab-cloud.eu/connector-registration/register-connector' \\\n--form 'name=default-connector' \\\n--form 'security_profile=idsc:BASE_SECURITY_PROFILE' \\\n--form 'cert_file=@/path/to/server.crt'"
+				"description": "Generated from cURL: curl --location 'https://${PUBLIC_HOST}/connector-registration/register-connector' \\\n--form 'name=default-connector' \\\n--form 'security_profile=idsc:BASE_SECURITY_PROFILE' \\\n--form 'cert_file=@/path/to/server.crt'"
 			},
 			"response": []
 		}

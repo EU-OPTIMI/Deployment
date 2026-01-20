@@ -118,6 +118,22 @@ replace_value_in_file() {
   fi
 }
 
+update_env_var() {
+  local key=$1
+  local value=$2
+  local file=$3
+
+  if [ ! -f "$file" ]; then
+    return
+  fi
+
+  if grep -q "^${key}=" "$file"; then
+    perl -0pi -e 's/^'"$key"'=.*/'"$key"'='"$value"'/m' "$file"
+  else
+    printf '%s=%s\n' "$key" "$value" >> "$file"
+  fi
+}
+
 load_cached_inputs
 
 register_client() {
@@ -221,14 +237,12 @@ if [[ ! -f "$COMPOSE_FILE" ]]; then
     exit 1
 fi
 
-replace_value_in_file "$NGINX_CONF" "__HOST__" "$FQDN" "$OLD_FQDN"
-replace_value_in_file "$NGINX_CONF" "__CERT__" "$CHAIN_FILE" "$OLD_CHAIN_FILE"
-replace_value_in_file "$NGINX_CONF" "__KEY__" "$KEY_FILE" "$OLD_KEY_FILE"
-replace_value_in_file "$COMPOSE_FILE" "__HOST__" "$FQDN" "$OLD_FQDN"
-replace_value_in_file "$CONNECTORCONF" "__HOST__" "$FQDN" "$OLD_FQDN"
-replace_value_in_file "$BASE_DIR/config/omejdn.yml" "__HOST__" "$FQDN" "$OLD_FQDN"
-replace_value_in_file "$ENV_FILE" "__HOST__" "$FQDN" "$OLD_FQDN"
-replace_value_in_file "$BASE_DIR/connector_registration/Connector Registration.postman_collection.json" "__HOST__" "$FQDN" "$OLD_FQDN"
+update_env_var "PUBLIC_HOST" "$FQDN" "$ENV_FILE"
+update_env_var "NGINX_TLS_CERT" "$CHAIN_FILE" "$ENV_FILE"
+update_env_var "NGINX_TLS_KEY" "$KEY_FILE" "$ENV_FILE"
+replace_value_in_file "$CONNECTORCONF" "\${PUBLIC_HOST}" "$FQDN" "$OLD_FQDN"
+replace_value_in_file "$BASE_DIR/config/omejdn.yml" "\${PUBLIC_HOST}" "$FQDN" "$OLD_FQDN"
+replace_value_in_file "$BASE_DIR/connector_registration/Connector Registration.postman_collection.json" "\${PUBLIC_HOST}" "$FQDN" "$OLD_FQDN"
 # Check required files
 MISSING_FILES=0
 CERT_DIR="$BASE_DIR/cert"
