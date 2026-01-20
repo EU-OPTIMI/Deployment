@@ -240,6 +240,7 @@ fi
 update_env_var "PUBLIC_HOST" "$FQDN" "$ENV_FILE"
 update_env_var "NGINX_TLS_CERT" "$CHAIN_FILE" "$ENV_FILE"
 update_env_var "NGINX_TLS_KEY" "$KEY_FILE" "$ENV_FILE"
+replace_value_in_file "$ENV_FILE" "\${PUBLIC_HOST}" "$FQDN" "$OLD_FQDN"
 replace_value_in_file "$CONNECTORCONF" "\${PUBLIC_HOST}" "$FQDN" "$OLD_FQDN"
 replace_value_in_file "$BASE_DIR/config/omejdn.yml" "\${PUBLIC_HOST}" "$FQDN" "$OLD_FQDN"
 replace_value_in_file "$BASE_DIR/connector_registration/Connector Registration.postman_collection.json" "\${PUBLIC_HOST}" "$FQDN" "$OLD_FQDN"
