@@ -106,15 +106,26 @@ replace_value_in_file() {
   local placeholder=$2
   local new_value=$3
   local previous_value=${4:-}
+  local placeholder_escaped
+  local previous_value_escaped
+  local new_value_escaped
 
   if [ ! -f "$file" ]; then
     return
   fi
 
+  placeholder_escaped=${placeholder//$/\\$}
+  placeholder_escaped=${placeholder_escaped//@/\\@}
+  previous_value_escaped=${previous_value//$/\\$}
+  previous_value_escaped=${previous_value_escaped//@/\\@}
+  new_value_escaped=${new_value//\\/\\\\}
+  new_value_escaped=${new_value_escaped//$/\\$}
+  new_value_escaped=${new_value_escaped//@/\\@}
+
   if [ -n "$previous_value" ] && [ "$previous_value" != "$new_value" ] && grep -q "$previous_value" "$file"; then
-    perl -0pi -e 's/\Q'"$previous_value"'\E/'"$new_value"'/g' "$file"
+    perl -0pi -e 's/\Q'"$previous_value_escaped"'\E/'"$new_value_escaped"'/g' "$file"
   elif grep -q "$placeholder" "$file"; then
-    perl -0pi -e 's/\Q'"$placeholder"'\E/'"$new_value"'/g' "$file"
+    perl -0pi -e 's/\Q'"$placeholder_escaped"'\E/'"$new_value_escaped"'/g' "$file"
   fi
 }
 
